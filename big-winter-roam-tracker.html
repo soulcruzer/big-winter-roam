@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Big Winter Roam - Ruth & Clay's Challenge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 30%, #4c1d95 60%, #5b21b6 100%);
+      font-family: 'Quicksand', sans-serif;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    .snow-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .snowflake {
+      position: absolute;
+      top: -20px;
+      color: #fff;
+      animation: snowfall linear infinite;
+    }
+
+    @keyframes snowfall {
+      0% { transform: translateY(-10vh) rotate(0deg); }
+      100% { transform: translateY(110vh) rotate(360deg); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 30px 40px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .cat-logo {
+      font-size: 50px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #f9a8d4, #c4b5fd, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 200% auto;
+      animation: shimmer 3s linear infinite;
+    }
+
+    .subtitle {
+      margin-top: 5px;
+      font-size: 1.1rem;
+      color: #c4b5fd;
+      font-weight: 500;
+    }
+
+    .target-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      padding: 15px 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(124, 58, 237, 0.4);
+    }
+
+    .target-number {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.5rem;
+      line-height: 1;
+    }
+
+    .target-label {
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      opacity: 0.9;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    .progress-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 30px;
+      padding: 40px;
+      color: #1e1b4b;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+    }
+
+    .miles-display {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .current-miles {
+      font-family: 'Fredoka One', cursive;
+      font-size: 5rem;
+      color: #7c3aed;
+      display: block;
+      line-height: 1;
+    }
+
+    .miles-of {
+      font-size: 1.3rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .paw-trail {
+      position: relative;
+      height: 70px;
+      background: linear-gradient(90deg, #f0e7ff, #e0f2fe);
+      border-radius: 35px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .paw-print {
+      position: absolute;
+      font-size: 24px;
+      transition: opacity 0.5s ease;
+    }
+
+    .finish-flag {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 30px;
+    }
+
+    .progress-bar-container {
+      background: #e2e8f0;
+      border-radius: 15px;
+      height: 35px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #7c3aed, #a855f7, #c084fc);
+      border-radius: 15px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 15px;
+      box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+    }
+
+    .progress-percent {
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .remaining-text {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .completed-banner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.1rem;
+      animation: pulse 1s infinite;
+    }
+
+    .last-updated {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .trackers-section {
+      display: flex;
+      gap: 25px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .tracker-card {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 30px 40px;
+      text-align: center;
+      min-width: 220px;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .tracker-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+
+    .tracker-avatar {
+      font-size: 50px;
+      margin-bottom: 10px;
+    }
+
+    .tracker-name {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #f0e7ff;
+    }
+
+    .tracker-miles {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.5rem;
+      color: #f9a8d4;
+    }
+
+    .tracker-label {
+      font-size: 1rem;
+      color: #c4b5fd;
+      font-weight: 600;
+    }
+
+    .mini-progress {
+      margin-top: 15px;
+      height: 8px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .mini-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #f9a8d4, #c084fc);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .section-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #f0e7ff;
+    }
+
+    .title-icon {
+      font-size: 1.5rem;
+    }
+
+    .bingo-count {
+      margin-left: auto;
+      background: rgba(255,255,255,0.15);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 1rem;
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    .bingo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+    }
+
+    .bingo-tile {
+      position: relative;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 25px 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: #f8fafc;
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    .bingo-tile:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-3px);
+    }
+
+    .bingo-tile.completed {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(52, 211, 153, 0.2));
+      border-color: #34d399;
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+    }
+
+    .bingo-icon {
+      font-size: 2rem;
+    }
+
+    .bingo-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .bingo-desc {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .checkmark {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      background: #10b981;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .fact-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+      border-radius: 25px;
+      padding: 35px 40px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.15);
+      position: relative;
+    }
+
+    .fact-quote {
+      position: absolute;
+      top: 10px;
+      left: 25px;
+      font-size: 4rem;
+      color: rgba(255,255,255,0.15);
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    .fact-text {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .fact-dots {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      transition: background-color 0.3s ease;
+    }
+
+    .dot.active {
+      background: #7c3aed;
+    }
+
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .impact-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .impact-amount {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      color: #f9a8d4;
+    }
+
+    .impact-text {
+      font-size: 0.95rem;
+      color: #c4b5fd;
+      font-weight: 500;
+    }
+
+    .charity-note {
+      text-align: center;
+      color: #a5b4fc;
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+
+    footer {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 30px 40px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: #a5b4fc;
+    }
+
+    .footer-cats {
+      font-size: 1.5rem;
+      margin-top: 10px;
+      letter-spacing: 5px;
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #fca5a5;
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 20px; }
+      h1 { font-size: 1.8rem; }
+      main { padding: 20px; }
+      .current-miles { font-size: 3.5rem; }
+      .progress-card { padding: 25px; }
+      .tracker-card { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="snow-container" id="snow"></div>
+
+  <header>
+    <div class="logo-section">
+      <div class="cat-logo">🐾</div>
+      <div>
+        <h1>Big Winter Roam</h1>
+        <p class="subtitle">Ruth & Clay's February Challenge</p>
+      </div>
+    </div>
+    <div class="target-badge">
+      <span class="target-number">126</span>
+      <span class="target-label">MILES</span>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="progress-card">
+        <div class="miles-display">
+          <span class="current-miles" id="totalMiles">
+            <span class="loading-spinner"></span>
+          </span>
+          <span class="miles-of">of 126 miles</span>
+        </div>
+
+        <div class="paw-trail" id="pawTrail">
+          <span class="finish-flag">🏁</span>
+        </div>
+
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progressBar" style="width: 0%">
+            <span class="progress-percent" id="progressPercent">0%</span>
+          </div>
+        </div>
+
+        <p class="remaining-text" id="remainingText">Loading progress...</p>
+        <p class="last-updated" id="lastUpdated"></p>
+      </div>
+    </section>
+
+    <section class="trackers-section">
+      <div class="tracker-card">
+        <div class="tracker-avatar">👩</div>
+        <h3 class="tracker-name">Ruth</h3>
+        <div class="tracker-miles" id="ruthMilesDisplay">-</div>
+        <span class="tracker-label">miles</span>
+        <div class="mini-progress">
+          <div class="mini-bar" id="ruthBar" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="tracker-card">
+        <div class="tracker-avatar">👨</div>
+        <h3 class="tracker-name">Clay</h3>
+        <div class="tracker-miles" id="clayMilesDisplay">-</div>
+        <span class="tracker-label">miles</span>
+        <div class="mini-progress">
+          <div class="mini-bar" id="clayBar" style="width: 0%"></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">
+        <span class="title-icon">🎯</span>
+        Roam Bingo
+        <span class="bingo-count" id="bingoCount">0/9</span>
+      </h2>
+      <div class="bingo-grid" id="bingoGrid"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">
+        <span class="title-icon">🐱</span>
+        Did You Know?
+      </h2>
+      <div class="fact-card">
+        <div class="fact-quote">"</div>
+        <p class="fact-text" id="factText">Cats spend 70% of their lives sleeping - that's about 13-16 hours a day!</p>
+        <div class="fact-dots" id="factDots"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">
+        <span class="title-icon">💜</span>
+        Your Impact for Cats
+      </h2>
+      <div class="impact-grid">
+        <div class="impact-card">
+          <span class="impact-amount">£20</span>
+          <span class="impact-text">could cover flea treatment for 4 cats</span>
+        </div>
+        <div class="impact-card">
+          <span class="impact-amount">£50</span>
+          <span class="impact-text">could cover feeding 10 cats for 25 days</span>
+        </div>
+        <div class="impact-card">
+          <span class="impact-amount">£100</span>
+          <span class="impact-text">could cover neutering for 2 cats</span>
+        </div>
+        <div class="impact-card">
+          <span class="impact-amount">£150</span>
+          <span class="impact-text">could cover microchipping 15 cats</span>
+        </div>
+      </div>
+      <p class="charity-note">Supporting Cats Protection - helping cats across the UK find loving homes</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>February 2026 Challenge</p>
+    <div class="footer-cats">🐱 🐈 🐱‍👤 😺 🐈‍⬛</div>
+  </footer>
+
+  <script>
+    // ========== CONFIGURATION ==========
+    // Your Google Sheet ID (from the URL)
+    const SHEET_ID = '1u0jQ0AlzC8_owEIB3ZtRd038EkeyAxkSXylnO3x6fBs';
+    const TARGET_MILES = 126;
+
+    // How often to refresh data (in milliseconds) - default 60 seconds
+    const REFRESH_INTERVAL = 60000;
+
+    // ========== DATA ==========
+    const catFacts = [
+      "Cats spend 70% of their lives sleeping - that's about 13-16 hours a day!",
+      "A group of cats is called a 'clowder' and a group of kittens is a 'kindle'",
+      "Cats can rotate their ears 180 degrees to locate sounds precisely",
+      "A cat's nose print is unique, like a human fingerprint",
+      "Cats have over 20 different vocalizations, including the meow",
+      "The oldest known pet cat was found in a 9,500-year-old grave in Cyprus",
+      "Cats can jump up to six times their length in a single bound",
+      "A cat's whiskers are roughly as wide as their body to help judge gaps",
+      "Cats spend about 30-50% of their day grooming themselves",
+      "A cat's purr vibrates at 25-150 Hz, frequencies that promote healing",
+      "Cats have a third eyelid called a 'haw' to protect their eyes",
+      "The average cat can run at speeds of up to 30 mph in short bursts",
+    ];
+
+    const bingoActivities = [
+      { id: 1, title: "Spot a Cat", desc: "A walk where you spot a cat", icon: "🐱" },
+      { id: 2, title: "Wind Wander", desc: "Go where the wind takes you", icon: "🍃" },
+      { id: 3, title: "Prowl with Purpose", desc: "Complete part of your target in one walk", icon: "🎯" },
+      { id: 4, title: "Roam Selfie", desc: "A moment with a selfie in your beanie", icon: "📸" },
+      { id: 5, title: "Funky Kit", desc: "A roam sporting some funky socks or gear", icon: "🧦" },
+      { id: 6, title: "Somewhere New", desc: "A stroll somewhere you've never been", icon: "🗺️" },
+      { id: 7, title: "Woodland Wander", desc: "Head for the trees and nature", icon: "🌲" },
+      { id: 8, title: "Recommended Ramble", desc: "Ask friends or family to suggest your route", icon: "💬" },
+      { id: 9, title: "Coffee Stop", desc: "Take a breather mid-stroll at a cafe", icon: "☕" },
+    ];
+
+    // ========== STATE ==========
+    let completedBingo = JSON.parse(localStorage.getItem('completedBingo') || '[]');
+    let currentFact = 0;
+    let ruthMiles = 0;
+    let clayMiles = 0;
+
+    // ========== GOOGLE SHEETS FETCH ==========
+    // Using Google Visualization API with JSONP (works without CORS issues)
+    function fetchSheetData() {
+      // Create a unique callback name
+      const callbackName = 'googleSheetCallback_' + Date.now();
+
+      // Define the callback function
+      window[callbackName] = function(response) {
+        try {
+          if (response.status === 'error') {
+            throw new Error(response.errors[0].message);
+          }
+
+          const table = response.table;
+          const rows = table.rows;
+
+          rows.forEach(row => {
+            if (row.c && row.c[0] && row.c[1]) {
+              const name = (row.c[0].v || '').toString().toLowerCase();
+              const miles = parseFloat(row.c[1].v) || 0;
+              if (name.includes('ruth')) ruthMiles = miles;
+              if (name.includes('clay')) clayMiles = miles;
+            }
+          });
+
+          updateDisplay();
+          document.getElementById('lastUpdated').textContent =
+            `Last updated: ${new Date().toLocaleTimeString()}`;
+
+        } catch (error) {
+          console.error('Error parsing sheet data:', error);
+          showError();
+        }
+
+        // Cleanup
+        delete window[callbackName];
+        document.body.removeChild(script);
+      };
+
+      // Create script tag for JSONP request
+      const script = document.createElement('script');
+      const query = encodeURIComponent('SELECT A,B');
+      script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${callbackName}&tq=${query}`;
+
+      script.onerror = function() {
+        console.error('Failed to load Google Sheet');
+        showError();
+        delete window[callbackName];
+        document.body.removeChild(script);
+      };
+
+      document.body.appendChild(script);
+    }
+
+    function showError() {
+      document.getElementById('totalMiles').textContent = '?';
+      document.getElementById('remainingText').textContent =
+        'Could not load data. Make sure the Google Sheet is shared with "Anyone with the link".';
+    }
+
+    // ========== DISPLAY UPDATE ==========
+    function updateDisplay() {
+      const total = ruthMiles + clayMiles;
+      const progress = Math.min((total / TARGET_MILES) * 100, 100);
+
+      // Update totals
+      document.getElementById('totalMiles').textContent = total.toFixed(1);
+      document.getElementById('ruthMilesDisplay').textContent = ruthMiles.toFixed(1);
+      document.getElementById('clayMilesDisplay').textContent = clayMiles.toFixed(1);
+
+      // Update progress bar
+      document.getElementById('progressBar').style.width = progress + '%';
+      document.getElementById('progressPercent').textContent = progress.toFixed(0) + '%';
+
+      // Update mini bars
+      document.getElementById('ruthBar').style.width =
+        Math.min((ruthMiles / (TARGET_MILES/2)) * 100, 100) + '%';
+      document.getElementById('clayBar').style.width =
+        Math.min((clayMiles / (TARGET_MILES/2)) * 100, 100) + '%';
+
+      // Update paw prints
+      const paws = document.querySelectorAll('.paw-print');
+      paws.forEach(paw => {
+        const index = parseInt(paw.dataset.index);
+        paw.style.opacity = index < Math.floor(progress / 5) ? 1 : 0.15;
+      });
+
+      // Update remaining text
+      const remaining = document.getElementById('remainingText');
+      if (total >= TARGET_MILES) {
+        remaining.textContent = `Amazing! You've exceeded your goal by ${(total - TARGET_MILES).toFixed(1)} miles!`;
+        document.getElementById('progressBar').innerHTML =
+          '<div class="completed-banner">🎉 CHALLENGE COMPLETE! 🎉</div>';
+      } else {
+        remaining.textContent = `${(TARGET_MILES - total).toFixed(1)} miles to go - you've got this!`;
+      }
+    }
+
+    // ========== INITIALIZATION ==========
+    function createSnow() {
+      const container = document.getElementById('snow');
+      for (let i = 0; i < 30; i++) {
+        const flake = document.createElement('div');
+        flake.className = 'snowflake';
+        flake.textContent = '❄';
+        flake.style.left = Math.random() * 100 + '%';
+        flake.style.animationDelay = Math.random() * 5 + 's';
+        flake.style.animationDuration = (8 + Math.random() * 4) + 's';
+        flake.style.fontSize = (10 + Math.random() * 15) + 'px';
+        flake.style.opacity = 0.3 + Math.random() * 0.4;
+        container.appendChild(flake);
+      }
+    }
+
+    function createPawPrints() {
+      const trail = document.getElementById('pawTrail');
+      for (let i = 0; i < 20; i++) {
+        const paw = document.createElement('span');
+        paw.className = 'paw-print';
+        paw.textContent = '🐾';
+        paw.style.left = (5 + i * 4.5) + '%';
+        paw.style.transform = i % 2 === 0 ? 'rotate(-15deg)' : 'rotate(15deg)';
+        paw.style.top = i % 2 === 0 ? '10px' : '30px';
+        paw.style.opacity = 0.15;
+        paw.dataset.index = i;
+        trail.appendChild(paw);
+      }
+    }
+
+    function createBingoGrid() {
+      const grid = document.getElementById('bingoGrid');
+      bingoActivities.forEach(activity => {
+        const tile = document.createElement('button');
+        tile.className = 'bingo-tile' + (completedBingo.includes(activity.id) ? ' completed' : '');
+        tile.innerHTML = `
+          <span class="bingo-icon">${activity.icon}</span>
+          <span class="bingo-title">${activity.title}</span>
+          <span class="bingo-desc">${activity.desc}</span>
+          ${completedBingo.includes(activity.id) ? '<div class="checkmark">✓</div>' : ''}
+        `;
+        tile.onclick = () => toggleBingo(activity.id, tile);
+        grid.appendChild(tile);
+      });
+      updateBingoCount();
+    }
+
+    function createFactDots() {
+      const container = document.getElementById('factDots');
+      for (let i = 0; i < 6; i++) {
+        const dot = document.createElement('span');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        container.appendChild(dot);
+      }
+    }
+
+    function toggleBingo(id, tile) {
+      if (completedBingo.includes(id)) {
+        completedBingo = completedBingo.filter(i => i !== id);
+        tile.classList.remove('completed');
+        tile.querySelector('.checkmark')?.remove();
+      } else {
+        completedBingo.push(id);
+        tile.classList.add('completed');
+        const check = document.createElement('div');
+        check.className = 'checkmark';
+        check.textContent = '✓';
+        tile.appendChild(check);
+      }
+      localStorage.setItem('completedBingo', JSON.stringify(completedBingo));
+      updateBingoCount();
+    }
+
+    function updateBingoCount() {
+      document.getElementById('bingoCount').textContent = completedBingo.length + '/9';
+    }
+
+    function rotateFacts() {
+      currentFact = (currentFact + 1) % catFacts.length;
+      document.getElementById('factText').textContent = catFacts[currentFact];
+      const dots = document.querySelectorAll('.dot');
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentFact % 6);
+      });
+    }
+
+    // ========== START ==========
+    createSnow();
+    createPawPrints();
+    createBingoGrid();
+    createFactDots();
+
+    // Initial fetch
+    fetchSheetData();
+
+    // Refresh data periodically
+    setInterval(fetchSheetData, REFRESH_INTERVAL);
+
+    // Rotate facts
+    setInterval(rotateFacts, 8000);
+  </script>
+</body>
+</html>
